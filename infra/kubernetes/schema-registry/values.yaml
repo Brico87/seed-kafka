@@ -1,0 +1,22 @@
+# HANDS-ON: https://artifacthub.io/packages/helm/bitnami/schema-registry
+# VALUES FROM: https://github.com/bitnami/charts/blob/main/bitnami/schema-registry/values.yaml
+
+listeners: http://0.0.0.0:8081
+
+service:
+  type: NodePort
+  ports:
+    http: 8081
+  nodePorts:
+    http: 30081
+
+kafka:
+  enabled: false # to true to ease install ?
+
+externalKafka:
+  brokers:
+    - PLAINTEXT://local-cluster-kafka-brokers.kafka.svc.cluster.local:9092
+
+extraEnvVars:
+  - name: SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR
+    value: "1"

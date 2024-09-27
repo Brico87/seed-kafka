@@ -1,10 +1,12 @@
 version: '2'
+name: docker-kafka
 services:
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     ports:
       - "9092:9092"
+      - "9097:9097"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_NODE_ID: 1
@@ -18,6 +20,8 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=9997
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
       #KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
     restart: always
@@ -37,23 +41,21 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       SCHEMA_REGISTRY_DEBUG: 'true'
 
-  akhq:
-    image: tchiotludo/akhq
-    container_name: akhq
-    restart: unless-stopped
+  # Docs: https://github.com/provectus/kafka-ui
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - 8082:8080
     depends_on:
       - kafka
+      - schema-registry
     environment:
-      AKHQ_CONFIGURATION: |
-        akhq:
-          connections:
-            docker-kafka-server:
-              properties:
-                bootstrap.servers: "kafka:29092"
-              schema-registry:
-                url: "http://schema-registry:8081"
-    ports:
-      - 9082:8080
+      KAFKA_CLUSTERS_0_NAME: docker-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      DYNAMIC_CONFIG_ENABLED: 'true'
 
 networks:
   default:

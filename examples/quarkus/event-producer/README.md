@@ -4,26 +4,18 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
 
-## Local infrastructure
-
-Use the "docker-compose.yml" file at the root of the "quarkus" project:
-```
-docker-compose up -d
-```
-
-A local Kafka cluster with an associated schema registry and an monitoring instance will be started.
-To reach the monitoring instance, use the following URL: http://localhost:9082.
-
-To destroy the local stack, use:
-```
-docker-compose down
-```
-
 ## Using Kafka Messaging lib
 
 This example shown how to publish a "test-data" payload with header and custom partition key.
 
 Once the app started, use the http://localhost:8080/emit endpoint to send a message to Kafka (GET request / available using browser).
+
+## Windows compilation
+
+For Maven compilation under Windows OS, please use the "windows" profile by adding the following option to Maven command:
+```
+-P windows
+```
 
 ## Running the application in dev mode
 

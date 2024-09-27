@@ -37,9 +37,9 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       SCHEMA_REGISTRY_DEBUG: 'true'
 
-  akhq:
+  monitoring:
     image: tchiotludo/akhq
-    container_name: akhq
+    container_name: monitoring
     restart: unless-stopped
     depends_on:
       - kafka
@@ -53,7 +53,7 @@ services:
               schema-registry:
                 url: "http://schema-registry:8081"
     ports:
-      - 9082:8080
+      - 8082:8080
 
 networks:
   default:

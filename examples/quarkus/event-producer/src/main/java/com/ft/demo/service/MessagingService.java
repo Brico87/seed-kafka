@@ -1,6 +1,6 @@
 package com.ft.demo.service;
 
-import io.smallrye.reactive.messaging.kafka.Record;
+import com.ft.demo.generated.model.TestDataPayload;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -8,7 +8,6 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -22,7 +21,7 @@ public class MessagingService {
 
     @Inject
     @Channel("data")
-    Emitter<String> emitter;
+    Emitter<TestDataPayload> emitter;
 
     // A regarder: https://quarkus.io/guides/kafka#commit-strategies
     // A regarder: https://quarkus.io/guides/kafka#kafka-bare-clients
@@ -35,7 +34,9 @@ public class MessagingService {
                 .withKey(UUID.randomUUID().toString())
                 .withHeaders(new RecordHeaders().add("timestamp", timestamp.toString().getBytes()))
                 .build();
-        Message<String> message = Message.of("test-data")
+        TestDataPayload payload = new TestDataPayload();
+        payload.setText("test-data");
+        Message<TestDataPayload> message = Message.of(payload)
                 .addMetadata(metadata);
         emitter.send(message);
         return timestamp;

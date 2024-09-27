@@ -23,6 +23,7 @@ components:
   schemas:
     testDataPayload:
       type: object
+      additionalProperties: false
       properties:
         text:
           type: string

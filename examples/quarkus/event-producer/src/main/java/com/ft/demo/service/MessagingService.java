@@ -30,15 +30,21 @@ public class MessagingService {
     public OffsetDateTime emitData() {
         OffsetDateTime timestamp = OffsetDateTime.now(ZoneId.of("UTC"));
         LOGGER.info("Emit data at time " + timestamp);
-        OutgoingKafkaRecordMetadata<String> metadata = OutgoingKafkaRecordMetadata.<String>builder()
-                .withKey(UUID.randomUUID().toString())
-                .withHeaders(new RecordHeaders().add("timestamp", timestamp.toString().getBytes()))
-                .build();
+        OutgoingKafkaRecordMetadata<String> metadata = buildRecordMetadata(timestamp);
         TestDataPayload payload = new TestDataPayload();
         payload.setText("test-data");
         Message<TestDataPayload> message = Message.of(payload)
                 .addMetadata(metadata);
         emitter.send(message);
         return timestamp;
+    }
+
+    // PRIVATE METHODS
+
+    private OutgoingKafkaRecordMetadata<String> buildRecordMetadata(OffsetDateTime timestamp) {
+        return OutgoingKafkaRecordMetadata.<String>builder()
+                .withKey(UUID.randomUUID().toString())
+                .withHeaders(new RecordHeaders().add("timestamp", timestamp.toString().getBytes()))
+                .build();
     }
 }

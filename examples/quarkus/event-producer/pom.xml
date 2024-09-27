@@ -115,10 +115,9 @@
                     <installDirectory>java_runtime_node</installDirectory>
                 </configuration>
                 <executions>
-                    <!-- It will install nodejs and npm -->
                     <execution>
-                        <id>install node and npm</id>
-                        <phase>generate-sources</phase>
+                        <id>Install node and npm</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
@@ -128,7 +127,7 @@
                     </execution>
                     <execution>
                         <id>Dependencies</id>
-                        <phase>generate-sources</phase>
+                        <phase>none</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -138,7 +137,7 @@
                     </execution>
                     <execution>
                         <id>Generate sources</id>
-                        <phase>generate-sources</phase>
+                        <phase>none</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -147,6 +146,48 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.45.0</version>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>asyncapi/cli:latest</name>
+                            <run>
+                                <user>root</user>
+                                <autoRemove>false</autoRemove>
+                                <wait>
+                                    <exit>0</exit>
+                                </wait>
+                                <volumes>
+                                    <bind>
+                                        <volume>${project.basedir}/contract_asyncapi_v1.0.yaml:/app/asyncapi.yaml</volume>
+                                        <volume>${project.build.directory}/generated-sources/com/ft/demo/generated/model:/app/output</volume>
+                                    </bind>
+                                </volumes>
+                                <cmd>generate models java /app/asyncapi.yaml -o /app/output --packageName=com.ft.demo.generated.model</cmd>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -184,7 +225,7 @@
             </properties>
         </profile>
         <profile>
-            <id>windows</id>
+            <id>generate-sources-npm</id>
             <build>
                 <plugins>
                     <plugin>
@@ -192,18 +233,39 @@
                         <artifactId>frontend-maven-plugin</artifactId>
                         <version>1.15.1</version>
                         <executions>
-                            <!-- It will install nodejs and npm -->
                             <execution>
-                                <id>install node and npm</id>
-                                <phase>none</phase>
+                                <id>Install node and npm</id>
+                                <phase>generate-sources</phase>
                             </execution>
                             <execution>
                                 <id>Dependencies</id>
-                                <phase>none</phase>
+                                <phase>generate-sources</phase>
                             </execution>
                             <execution>
                                 <id>Generate sources</id>
-                                <phase>none</phase>
+                                <phase>generate-sources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>generate-sources-docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.45.0</version>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>generate-sources</phase>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <phase>generate-sources</phase>
                             </execution>
                         </executions>
                     </plugin>

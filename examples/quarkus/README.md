@@ -26,9 +26,25 @@ To destroy the local Kafka stack, use:
 
 Using AsyncAPI contract, it is possible to automatically generate model payloads.
 
-## Generated sources from AsyncAPI contrat
+## Generated sources from AsyncAPI contract
 
 An AsyncAPI contract is defined at the root folder of each project and generate sources from that contract can be made using several tools.
+
+### Docker Maven plugin
+
+The profile `generate-sources-docker` has been set up to trigger a container execution of the "asyncapi/cli" image. 
+To enable it, select the profile in IntelliJ on the "Maven > Profiles" and run the "Lifecycle > compile" job or run the Maven command line:
+```
+> ./mvnw compile -P generate-sources-docker
+```
+
+### NPM Maven plugin
+
+The profile `generate-sources-npm` has been set up to trigger the execution of the "modelina" script.
+To enable it, select the profile in IntelliJ on the "Maven > Profiles" and run the "Lifecycle > compile" job or run the Maven command line:
+```
+> ./mvnw compile -P generate-sources-npm
+```
 
 ### Docker asyncapi/cli image
 
@@ -55,4 +71,4 @@ You can also use the "Project Structure > Project settings > Modules" interactiv
 
 ### Maven plugin
 
-The "build-helper" plugin has been included in the projects POM. The detection should be automatic.
+The "build-helper" plugin has been included in the projects POM. The sources detection is automatic when running the Maven "compile" job.

@@ -10,13 +10,6 @@ This example shown how to publish a "test-data" payload with header and custom p
 
 Once the app started, use the http://localhost:8080/emit endpoint to send a message to Kafka (GET request / available using browser).
 
-## Windows compilation
-
-For Maven compilation under Windows OS, please use the "windows" profile by adding the following option to Maven command:
-```
--P windows
-```
-
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

@@ -1,0 +1,27 @@
+asyncapi: 3.0.0
+info:
+  title: EDA demo application using AVRO payload
+  version: '2.0.0'
+channels:
+  demo:
+    address: 'demo'
+    messages:
+      testData:
+        $ref: '#/components/messages/testData'
+operations:
+  receive:
+    action: 'receive'
+    channel:
+      $ref: '#/channels/demo'
+components:
+  messages:
+    testData:
+      title: test data message
+      name: testData
+      payload:
+        $ref: '#/components/schemas/testDataPayload'
+  schemas:
+    testDataPayload:
+      schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
+      schema:
+        $ref: './src/main/avro/testdatapayload.avsc'

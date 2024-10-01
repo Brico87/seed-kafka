@@ -1,0 +1,11 @@
+{
+  "namespace": "com.ft.demo",
+  "type": "record",
+  "name": "TestDataPayload",
+  "fields": [
+    {
+      "name": "text",
+      "type": "string"
+    }
+  ]
+}

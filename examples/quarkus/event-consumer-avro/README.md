@@ -1,4 +1,4 @@
-# event-producer-avro
+# event-consumer
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -6,11 +6,9 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 
 ## Using Kafka Messaging lib
 
-This example shown how to publish a "test-data" payload with header and custom partition key.
+This example shown how to consume "test-data" payload with header and custom partition key.
 
-Make sure that the 
-
-Once the app started, use the http://localhost:8080/emit endpoint to send a message to Kafka (GET request / available using browser).
+Once the app started, check the logs to see the messages read from Kafka.
 
 ## Running the application in dev mode
 
@@ -57,7 +55,7 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ./mvnw package -Dnative -Dquarkus.native.container-build=true
 ```
 
-You can then execute your native executable with: `./target/event-producer-avro-1.0.0-SNAPSHOT-runner`
+You can then execute your native executable with: `./target/event-consumer-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 

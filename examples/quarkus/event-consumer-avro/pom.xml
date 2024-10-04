@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ft.demo</groupId>
-    <artifactId>event-producer-avro</artifactId>
+    <artifactId>event-consumer-avro</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
@@ -53,14 +53,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
+
         <!-- AVRO -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-confluent-registry-avro</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-avro</artifactId>
         </dependency>
         <!-- Confluent registry libraries use Jakarta REST client -->
         <dependency>
@@ -77,6 +74,14 @@
                     <artifactId>jakarta.ws.rs-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- INTERNAL -->
+        <dependency>
+            <groupId>com.ft.demo</groupId>
+            <artifactId>event-avro-payload</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- TEST -->
@@ -142,48 +147,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.45.0</version>
-                <executions>
-                    <execution>
-                        <id>start</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <images>
-                        <image>
-                            <name>asyncapi/cli:latest</name>
-                            <run>
-                                <user>root</user>
-                                <autoRemove>false</autoRemove>
-                                <wait>
-                                    <exit>0</exit>
-                                </wait>
-                                <volumes>
-                                    <bind>
-                                        <volume>${project.basedir}/contract_asyncapi_avro_v2.0.yaml:/app/asyncapi.yaml</volume>
-                                        <volume>${project.build.directory}/generated-sources/com/ft/demo/generated/model:/app/output</volume>
-                                    </bind>
-                                </volumes>
-                                <cmd>generate models java /app/asyncapi.yaml -o /app/output --packageName=com.ft.demo.generated.model</cmd>
-                            </run>
-                        </image>
-                    </images>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>3.6.0</version>
@@ -217,28 +180,6 @@
                 <skipITs>false</skipITs>
                 <quarkus.native.enabled>true</quarkus.native.enabled>
             </properties>
-        </profile>
-        <profile>
-            <id>generate-sources-docker</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.45.0</version>
-                        <executions>
-                            <execution>
-                                <id>start</id>
-                                <phase>generate-sources</phase>
-                            </execution>
-                            <execution>
-                                <id>stop</id>
-                                <phase>generate-sources</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

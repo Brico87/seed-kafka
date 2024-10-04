@@ -9,10 +9,10 @@ import jakarta.inject.Inject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
-class ProducerApplicationTest {
+class ProducerAvroApplicationTest {
 
     @Inject
-    ProducerApplication application;
+    ProducerAvroApplication application;
 
     @Test
     void test() {

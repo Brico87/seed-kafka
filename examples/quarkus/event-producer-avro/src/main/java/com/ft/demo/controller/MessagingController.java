@@ -13,13 +13,20 @@ import java.time.OffsetDateTime;
 @Path("/emit")
 public class MessagingController {
 
+    private static final Logger LOGGER = Logger.getLogger(MessagingController.class);
+
     @Inject
     MessagingService messagingService;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String emit() {
-        OffsetDateTime date = messagingService.emitData();
-        return "emitted - " + date;
+        try {
+            OffsetDateTime date = messagingService.emitData();
+            return "emitted - " + date;
+        } catch (Exception e) {
+            LOGGER.error("Error while emitting message", e);
+            return "error - " + e.getMessage();
+        }
     }
 }

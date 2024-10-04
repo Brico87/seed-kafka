@@ -24,4 +24,4 @@ components:
     testDataPayload:
       schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
       schema:
-        $ref: './src/main/avro/testdatapayload.avsc'
+        $ref: 'https://raw.githubusercontent.com/Brico87/seed-kafka/refs/heads/main/examples/quarkus/event-avro-payload/src/main/avro/testdatapayload.avsc'

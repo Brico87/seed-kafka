@@ -1,18 +1,9 @@
 package com.ft.demo.service;
 
-import com.ft.demo.generated.model.TestDataPayload;
-import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
+import com.ft.demo.TestDataPayload;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.internals.RecordHeaders;
-import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.eclipse.microprofile.reactive.messaging.Message;
-
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.util.UUID;
 
 import static org.eclipse.microprofile.reactive.messaging.Message.LOGGER;
 

@@ -1,0 +1,138 @@
+# FROM: https://github.com/debezium/debezium-examples/blob/main/outbox/docker-compose.yaml
+version: '2'
+name: outbox-kafka
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.47
+    container_name: jaeger
+    ports:
+      - 4317:4317
+      - 16686:16686
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9097:9097"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'INTERNAL://kafka:29092,CONTROLLER://kafka:29093,EXTERNAL://0.0.0.0:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka:29092,EXTERNAL://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=9997
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+      #KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    restart: always
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - kafka
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      SCHEMA_REGISTRY_DEBUG: 'true'
+
+  database:
+    image: quay.io/debezium/example-postgres:3.0
+    container_name: database
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: "pg_isready -U postgresuser -d testdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=testdb
+      - PGPASSWORD=postgrespw
+
+  pgadmin:
+    container_name: database-admin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - "5050:80"
+
+  debezium-connect:
+    image: debezium/strimzi-connect
+    container_name: debezium-connect
+    build:
+      context: debezium-strimzi
+      args:
+        DEBEZIUM_CONNECTOR_VERSION: "3.0.0.Final"
+        STRIMZI_VERSION: "latest-kafka-3.8.0"
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - database
+    environment:
+      - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
+      - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:29092
+      - |
+        KAFKA_CONNECT_CONFIGURATION=
+        key.converter=org.apache.kafka.connect.json.JsonConverter
+        value.converter=org.apache.kafka.connect.json.JsonConverter
+        key.converter.schemas.enable=false
+        value.converter.schemas.enable=false
+        group.id=debezium-connect
+        offset.storage.topic=connect-offsets
+        offset.storage.replication.factor=1
+        config.storage.topic=connect-configs
+        config.storage.replication.factor=1
+        status.storage.topic=connect-status
+        status.storage.replication.factor=1
+        producer.interceptor.classes=io.debezium.tracing.DebeziumTracingProducerInterceptor
+      - OTEL_SERVICE_NAME=kafka-connect
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_TRACES_SAMPLER=always_on
+      - STRIMZI_TRACING=opentelemetry
+    command: /opt/kafka/kafka_connect_run.sh
+
+  # Docs: https://github.com/provectus/kafka-ui
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - 8082:8080
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      KAFKA_CLUSTERS_0_NAME: docker-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      DYNAMIC_CONFIG_ENABLED: 'true'
+
+networks:
+  default:
+    external: true
+    name: eda-demo

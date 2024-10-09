@@ -146,7 +146,7 @@
                                 </wait>
                                 <volumes>
                                     <bind>
-                                        <volume>${project.basedir}/contract_asyncapi_v2.0.yaml:/app/asyncapi.yaml</volume>
+                                        <volume>${project.basedir}/contract_asyncapi_v1.0.yaml:/app/asyncapi.yaml</volume>
                                         <volume>${project.build.directory}/generated-sources/com/ft/demo/generated/model:/app/output</volume>
                                     </bind>
                                 </volumes>

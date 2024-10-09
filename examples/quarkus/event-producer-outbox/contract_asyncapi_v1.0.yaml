@@ -1,0 +1,29 @@
+asyncapi: 3.0.0
+info:
+  title: EDA demo application
+  version: '1.0.0'
+channels:
+  demo:
+    address: 'demo'
+    messages:
+      testData:
+        $ref: '#/components/messages/testData'
+operations:
+  receive:
+    action: 'receive'
+    channel:
+      $ref: '#/channels/demo'
+components:
+  messages:
+    testData:
+      title: test data message
+      name: testData
+      payload:
+        $ref: '#/components/schemas/testDataPayload'
+  schemas:
+    testDataPayload:
+      type: object
+      additionalProperties: false
+      properties:
+        text:
+          type: string
